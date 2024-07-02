@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "github.com/LucasBelusso1/pdf_manager/internal/api/webserver/v1"
 
 func main() {
-	fmt.Println("Hello World")
+	webserver.Start()
 }
