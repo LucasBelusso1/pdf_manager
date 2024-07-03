@@ -1,3 +1,4 @@
-/.air.toml
+.air.toml
 /go.sum
 /tmp
+.vscode
