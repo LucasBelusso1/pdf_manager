@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 
@@ -20,7 +21,7 @@ func Merge(c *gin.Context) {
 		return
 	}
 
-	var arrMultipartFiles []io.ReadSeeker
+	var filesForMerge []io.ReadSeeker
 	for _, file := range form.File["files[]"] {
 		if file.Header.Get("Content-Type") != "application/pdf" {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -42,11 +43,24 @@ func Merge(c *gin.Context) {
 			return
 		}
 
+		fileContent, err := io.ReadAll(multipartFile)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":   true,
+				"message": err,
+				"code":    openMultipartFileErr,
+			})
+			return
+		}
+
 		defer multipartFile.Close()
-		arrMultipartFiles = append(arrMultipartFiles, multipartFile)
+
+		reader := bytes.NewReader(fileContent)
+		filesForMerge = append(filesForMerge, reader)
 	}
 
-	err = api.MergeRaw(arrMultipartFiles, c.Writer, false, nil)
+	err = api.MergeRaw(filesForMerge, c.Writer, false, nil)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
