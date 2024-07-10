@@ -1,13 +1,13 @@
 package handlers
 
 import (
-	"bytes"
 	"io"
 	"net/http"
 
-	"github.com/LucasBelusso1/pdf_manager/internal/api/webserver/v1/handlers/dto"
+	handlersDTO "github.com/LucasBelusso1/pdf_manager/internal/api/webserver/v1/handlers/dto"
+	"github.com/LucasBelusso1/pdf_manager/internal/usecase"
+	usecaseDTO "github.com/LucasBelusso1/pdf_manager/internal/usecase/dto"
 	"github.com/gin-gonic/gin"
-	"github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
 func CountPage(c *gin.Context) {
@@ -17,7 +17,7 @@ func CountPage(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 	}
 
-	var pageCountOutputDTOs []dto.PageCountOutputDTO
+	var fileInputDTOs []usecaseDTO.FileInput
 	for _, file := range form.File["files[]"] {
 		multipartFile, err := file.Open()
 
@@ -33,17 +33,23 @@ func CountPage(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		}
 
-		reader := bytes.NewReader(fileContent)
+		fileInputDTOs = append(fileInputDTOs, usecaseDTO.FileInput{
+			Name:    file.Filename,
+			Content: fileContent,
+		})
+	}
 
-		pagesQty, err := api.PageCount(reader, nil)
+	var pageCountOutputDTOs []handlersDTO.PageCountOutputDTO
 
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		}
+	pageCountUseCase := usecase.NewPageCountUseCase(fileInputDTOs)
+	filesWithPageCounter := pageCountUseCase.CountPages()
 
-		pageCountOutputDTOs = append(pageCountOutputDTOs, dto.PageCountOutputDTO{
-			Name:     file.Filename,
-			PagesQty: pagesQty,
+	for _, fileCounted := range filesWithPageCounter {
+		pageCountOutputDTOs = append(pageCountOutputDTOs, handlersDTO.PageCountOutputDTO{
+			Name:         fileCounted.Name,
+			PagesQty:     fileCounted.Pages,
+			Error:        fileCounted.Error,
+			ErrorMessage: fileCounted.ErrorMessage,
 		})
 	}
 

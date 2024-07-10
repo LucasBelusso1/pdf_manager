@@ -9,17 +9,17 @@ import (
 )
 
 type Merge struct {
-	FileInputDtos []dto.FileInputDTO
-	Writer        io.Writer
+	Files  []dto.FileInput
+	Writer io.Writer
 }
 
-func NewMergeUseCase(fileInputDTOs []dto.FileInputDTO, writer io.Writer) *Merge {
-	return &Merge{FileInputDtos: fileInputDTOs, Writer: writer}
+func NewMergeUseCase(fileInputDTOs []dto.FileInput, writer io.Writer) *Merge {
+	return &Merge{Files: fileInputDTOs, Writer: writer}
 }
 
 func (muc *Merge) Merge() error {
 	var readersForMerge []io.ReadSeeker
-	for _, file := range muc.FileInputDtos {
+	for _, file := range muc.Files {
 		reader := bytes.NewReader(file.Content)
 
 		readersForMerge = append(readersForMerge, reader)

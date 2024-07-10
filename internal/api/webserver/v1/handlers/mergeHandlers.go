@@ -21,7 +21,7 @@ func Merge(c *gin.Context) {
 		return
 	}
 
-	var usecaseFileInputDTOs []dto.FileInputDTO
+	var usecaseFileInputDTOs []dto.FileInput
 	for _, file := range form.File["files[]"] {
 		if file.Header.Get("Content-Type") != "application/pdf" {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -56,7 +56,7 @@ func Merge(c *gin.Context) {
 
 		defer multipartFile.Close()
 
-		usecaseFileInputDTOs = append(usecaseFileInputDTOs, dto.FileInputDTO{
+		usecaseFileInputDTOs = append(usecaseFileInputDTOs, dto.FileInput{
 			Name:    file.Filename,
 			Content: fileContent,
 		})
