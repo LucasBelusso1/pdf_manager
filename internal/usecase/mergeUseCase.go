@@ -8,16 +8,16 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
-type MergeUseCase struct {
+type Merge struct {
 	FileInputDtos []dto.FileInputDTO
 	Writer        io.Writer
 }
 
-func NewMergeUseCase(fileInputDTOs []dto.FileInputDTO, writer io.Writer) *MergeUseCase {
-	return &MergeUseCase{FileInputDtos: fileInputDTOs, Writer: writer}
+func NewMergeUseCase(fileInputDTOs []dto.FileInputDTO, writer io.Writer) *Merge {
+	return &Merge{FileInputDtos: fileInputDTOs, Writer: writer}
 }
 
-func (muc *MergeUseCase) Merge() error {
+func (muc *Merge) Merge() error {
 	var readersForMerge []io.ReadSeeker
 	for _, file := range muc.FileInputDtos {
 		reader := bytes.NewReader(file.Content)
