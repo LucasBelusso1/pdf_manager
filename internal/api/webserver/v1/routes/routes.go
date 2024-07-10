@@ -17,4 +17,5 @@ func NewRouter(routerGroup *gin.RouterGroup) *Router {
 func (r *Router) RegisterRoutes() {
 	r.setHealthRoutes()
 	r.setMergeRoutes()
+	r.setCountPagesRoutes()
 }
