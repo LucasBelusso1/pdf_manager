@@ -4,19 +4,22 @@ import (
 	"net/http"
 
 	handlersDTO "github.com/LucasBelusso1/pdf_manager/internal/api/webserver/v1/handlers/dto"
+	resterror "github.com/LucasBelusso1/pdf_manager/internal/api/webserver/v1/restError"
 	"github.com/LucasBelusso1/pdf_manager/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
 
 func CountPage(c *gin.Context) {
-	files := GetFilesFromMultipart(c)
+	files, err := GetFilesFromMultipart(c, false)
+
+	if err != nil {
+		c.JSON(err.Code, err)
+		return
+	}
 
 	if len(files) == 0 {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   true,
-			"message": "Error when trying to get pdf",
-			"code":    openMultipartFileErr,
-		})
+		err := resterror.NewBadRequestError("Not enought files")
+		c.JSON(err.Code, err)
 	}
 
 	var pageCountOutputDTOs []handlersDTO.PageCountOutputDTO
